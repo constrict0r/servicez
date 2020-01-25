@@ -1,0 +1,25 @@
+@startuml
+'Use plantuml to view this file as an image: http://plantuml.com'
+
+skinparam monochrome true
+
+start
+
+:Apply validations;
+
+if (validations passed?) then (yes)
+
+  :Set unified = services + loaded configuration;
+
+  if (unified not empty?) then (yes)
+    :Enable services;
+  else (no)
+  endif
+
+else (no)
+  :Show validation errors;
+endif
+
+end
+
+@enduml

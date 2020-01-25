@@ -1,0 +1,6 @@
+---
+# Example file with services to enable.
+
+services:
+  - mosquitto
+  - nginx

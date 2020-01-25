@@ -1,0 +1,54 @@
+---
+- name: Display Role Details.
+  debug:
+    msg:
+      - '===================================================================='
+      - 'constrict0r.servicez'
+      - 'Enable and start Linux services.'
+      - '===================================================================='
+
+- name: Handle services.
+  debug:
+    msg:
+      - '--------------------------------------------------------------------'
+      - 'Processing services ...'
+      - '--------------------------------------------------------------------'
+  when: unified is not variable_empty
+
+- name: Disable services.
+  debug:
+    msg:
+      - '--------------------------------------------------------------------'
+      - 'Stoping and disabling services ...'
+      - '--------------------------------------------------------------------'
+  when: unified_b is not variable_empty
+
+- name: Stop and disable services.
+  service:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+  with_items: "{{ unified_b }}"
+  become: true
+  when:
+    - not ansible_check_mode
+    - unified_b is not variable_empty
+
+- name: Enable services.
+  debug:
+    msg:
+      - '--------------------------------------------------------------------'
+      - 'Enabling and starting services ...'
+      - '--------------------------------------------------------------------'
+  when: unified is not variable_empty
+
+- name: Enable and start services.
+  service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  with_items: "{{ unified }}"
+  become: true
+  when:
+    - not ansible_check_mode
+    - unified is not variable_empty
