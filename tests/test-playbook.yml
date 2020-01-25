@@ -16,7 +16,7 @@
 
   - name: Download example-services.yml file.
     get_url:
-      url: https://is.gd/zODeuT
+      url: https://is.gd/gDI4n5
       dest: /tmp/example-services.yml
       force: yes
 
@@ -186,7 +186,8 @@
       name: constrict0r.servicez
     vars:
       services: []
-      configuration: https://is.gd/zODeuT
+      configuration: https://is.gd/gDI4n5
+      expand: true
     failed_when: unified is variable_empty
 
   - name: Test disable services.
