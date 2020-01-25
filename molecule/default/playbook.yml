@@ -8,4 +8,4 @@
         - nginx
       services_disable:
         - ntp
-      configuration: https://is.gd/zODeuT
+      configuration: https://is.gd/gDI4n5
