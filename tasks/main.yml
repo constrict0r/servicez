@@ -30,6 +30,7 @@
     state: stopped
   with_items: "{{ unified_b }}"
   become: true
+  changed_when: false
   when:
     - not ansible_check_mode
     - unified_b is not variable_empty
@@ -49,6 +50,7 @@
     state: started
   with_items: "{{ unified }}"
   become: true
+  changed_when: false
   when:
     - not ansible_check_mode
     - unified is not variable_empty
