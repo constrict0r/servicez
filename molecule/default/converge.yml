@@ -14,9 +14,9 @@
     - name: Ensure Python requirements installed.
       apt:
         name:
-	  - mosquitto
-	  - nginx
-	  - ntp
+          - mosquitto
+          - nginx
+          - ntp
           - python
           - python-pip
           - python-setuptools
