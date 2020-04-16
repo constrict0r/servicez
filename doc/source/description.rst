@@ -1,5 +1,5 @@
 Description
-------------------------------------------------------------------------------
+--------------------------------------------------------------
 
 Ansible role to manage system services.
 
@@ -20,4 +20,3 @@ This role performs the following actions:
 
 - If the **configuration** variable is defined, enable and start the services
   listed on it.
-
