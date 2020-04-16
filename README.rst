@@ -1,38 +1,38 @@
 
-sysconfig
-*********
+servicez
+********
 
-.. image:: https://gitlab.com/constrict0r/sysconfig/badges/master/pipeline.svg
+.. image:: https://gitlab.com/constrict0r/servicez/badges/master/pipeline.svg
    :alt: pipeline
 
-.. image:: https://travis-ci.com/constrict0r/sysconfig.svg
+.. image:: https://travis-ci.com/constrict0r/servicez.svg
    :alt: travis
 
-.. image:: https://readthedocs.org/projects/sysconfig/badge
+.. image:: https://readthedocs.org/projects/servicez/badge
    :alt: readthedocs
 
-Ansible to apply system-wide configuration.
+Ansible role to manage system services.
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/sysconfig/avatar.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/avatar.png
    :alt: avatar
 
 Full documentation on `Readthedocs
-<https://sysconfig.readthedocs.io>`_.
+<https://servicez.readthedocs.io>`_.
 
 Source code on:
 
-`Github <https://github.com/constrict0r/sysconfig>`_.
+`Github <https://github.com/constrict0r/servicez>`_.
 
-`Gitlab <https://gitlab.com/constrict0r/sysconfig>`_.
+`Gitlab <https://gitlab.com/constrict0r/servicez>`_.
 
 `Part of: <https://gitlab.com/explore/projects?tag=doombot>`_
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/sysconfig/doombot.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/doombot.png
    :alt: doombot
 
 **Ingredients**
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/sysconfig/ingredient.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/ingredient.png
    :alt: ingredient
 
 
@@ -42,8 +42,8 @@ Contents
 * `Description <#Description>`_
 * `Usage <#Usage>`_
 * `Variables <#Variables>`_
-   * `expand <#expand>`_
-   * `system_skeleton <#system-skeleton>`_
+   * `services <#services>`_
+   * `services_disable <#services-disable>`_
    * `configuration <#configuration>`_
 * `YAML <#YAML>`_
 * `Attributes <#Attributes>`_
@@ -61,10 +61,7 @@ Contents
 Description
 ***********
 
-Ansible role to apply system wide configuration.
-
-This role can take multiple git repository URLs and clone each
-repository to the */* (root) directory of the system.
+Ansible role to manage system services.
 
 This role performs the following actions:
 
@@ -73,28 +70,17 @@ This role performs the following actions:
 * Ensure the current user can obtain administrative (root)
    permissions.
 
-* Update the apt cache.
+* If the **services_disable** variable is defined, stop and disable
+   the services listed on it.
 
-* Ensure dependencies are installed.
+* If the **configuration** variable is defined, stop and disable the
+   *services_disable* listed on it.
 
-* If the **system_skeleton** variable is defined, clone the git
-   repositories listed on it into */*.
+* If the **services** variable is defined, enable and start the
+   services listed on it.
 
-* If the **configuration** variable is defined, clone the git system
-   repositories listed on it into */*.
-
-This role do not expand files or URLs by default because the most
-common case is to specify URLs that points directly to a skeleton
-repository, so the default behaviour for this role is to treat file
-paths and URLs as plain text.
-
-You can change the default behaviour by:
-
-* Setting the **expand** variable to *true*.
-
-Or
-
-* Add to an item the attribute **item_expand** setted to *true*.
+* If the **configuration** variable is defined, enable and start the
+   services listed on it.
 
 
 
@@ -107,8 +93,8 @@ Usage
 
    ::
 
-      ansible-galaxy install constrict0r.sysconfig
-      ansible localhost -m include_role -a name=constrict0r.sysconfig -K
+      ansible-galaxy install constrict0r.servicez
+      ansible localhost -m include_role -a name=constrict0r.servicez -K
 
 * Passing variables:
 
@@ -116,8 +102,8 @@ Usage
 
    ::
 
-      ansible localhost -m include_role -a name=constrict0r.sysconfig -K \
-          -e "{system_skeleton: ['https://gitlab.com/huertico/server']}"
+      ansible localhost -m include_role -a name=constrict0r.servicez -K \
+          -e "{services: ['mosquitto', 'nginx']}"
 
 * To include the role on a playbook:
 
@@ -127,7 +113,7 @@ Usage
 
       - hosts: servers
         roles:
-            - {role: constrict0r.sysconfig}
+            - {role: constrict0r.servicez}
 
 * To include the role as dependency on another role:
 
@@ -136,8 +122,8 @@ Usage
    ::
 
       dependencies:
-        - role: constrict0r.sysconfig
-          system_skeleton: ['https://gitlab.com/huertico/server']
+        - role: constrict0r.servicez
+          services: ['mosquitto', 'nginx']
 
 * To use the role from tasks:
 
@@ -147,15 +133,15 @@ Usage
 
       - name: Execute role task.
         import_role:
-          name: constrict0r.sysconfig
+          name: constrict0r.servicez
         vars:
-          system_skeleton: ['https://gitlab.com/huertico/server']
+          services: ['mosquitto', 'nginx']
 
 To run tests:
 
 ::
 
-   cd sysconfig
+   cd servicez
    chmod +x testme.sh
    ./testme.sh
 
@@ -169,74 +155,62 @@ Variables
 The following variables are supported:
 
 
-expand
-======
+services
+========
 
-Boolean value indicating if load items from file paths or URLs or just
-treat files and URLs as plain text.
+List of services to enable and start.
 
-If set to *true* this role will attempt to load items from the
-especified paths and URLs.
-
-If set to *false* each file path or URL found on system_skeleton will
-be treated as plain text.
-
-This variable is set to *false* by default.
-
-::
-
-   ansible localhost -m include_role -a name=constrict0r.sysconfig \
-       -e "expand=true configuration='/home/username/my-config.yml' titles='system_skeleton'"
-
-If you wish to override the value of this variable, specify an
-*item_path* and an *item_expand* attributes when passing the item, the
-*item_path* attribute can be used with URLs too:
-
-::
-
-   ansible localhost -m include_role -a name=constrict0r.sysconfig \
-       -e "{expand: false,
-           system_skeleton: [ \
-               item_path: '/home/username/my-config.yml', \
-               item_expand: false \
-           ], titles: 'system_skeleton'}"
-
-To prevent any unexpected behaviour, it is recommended to always
-specify this variable when calling this role.
-
-
-system_skeleton
-===============
-
-URL or list of URLs pointing to git skeleton repositories containing
-layouts of directories and configuration files.
-
-Each URL on system_skeleton will be checked to see if it points to a
-valid git repository, and if it does, the git repository is cloned.
-
-The contents of each cloned repository will then be copied to the root
-of the filesystem as a simple method to apply system-wide
-configuration.
+This list can be modified by passing a *services* array when including
+the role on a playbook or via *–extra-vars* from a terminal.
 
 This variable is empty by default.
 
 ::
 
    # Including from terminal.
-   ansible localhost -m include_role -a name=constrict0r.sysconfig -K -e \
-       "{system_skeleton: [https://gitlab.com/huertico/server]}"
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
+       "{services: [mosquitto, nginx]}"
 
    # Including on a playbook.
    - hosts: servers
      roles:
-       - role: constrict0r.sysconfig
-         system_skeleton:
-           - https://gitlab.com/huertico/server
-           - https://gitlab.com/huertico/client
+       - role: constrict0r.servicez
+         services:
+           - mosquitto
+           - nginx
 
    # To a playbook from terminal.
    ansible-playbook -i tests/inventory tests/test-playbook.yml -K -e \
-       "{system_skeleton: [https://gitlab.com/huertico/server]}"
+       "{services: [mosquitto, nginx]}"
+
+
+services_disable
+================
+
+List of services to stop and disable.
+
+This list can be modified by passing a *services_disable* array when
+including the role on a playbook or via *–extra-vars* from a terminal.
+
+This variable is empty by default.
+
+::
+
+   # Including from terminal.
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
+       "{services_disable: [mosquitto, nginx]}"
+
+   # Including on a playbook.
+   - hosts: servers
+     roles:
+       - role: constrict0r.servicez
+         services_disable:
+           - mosquitto
+           - nginx
+
+   # To a playbook from terminal.
+   ansible-playbook -i tests/inventory tests/test-playbook.yml -K -e \
+       "{services_disable: [mosquitto, nginx]}"
 
 
 configuration
@@ -253,11 +227,11 @@ This variable is empty by default.
 ::
 
    # Using file path.
-   ansible localhost -m include_role -a name=constrict0r.sysconfig -K -e \
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
        "configuration=/home/username/my-config.yml"
 
    # Using URL.
-   ansible localhost -m include_role -a name=constrict0r.sysconfig -K -e \
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
        "configuration=https://my-url/my-config.yml"
 
 To see how to write  a configuration file see the *YAML* file format
@@ -282,8 +256,8 @@ You can include in the file the variables required for your tasks:
 ::
 
    ---
-   system_skeleton:
-     - ['https://gitlab.com/huertico/server']
+   services:
+     - ['mosquitto', 'nginx']
 
 If you want this role to load list of items from files and URLs you
 can set the **expand** variable to *true*:
@@ -291,7 +265,7 @@ can set the **expand** variable to *true*:
 ::
 
    ---
-   system_skeleton: /home/username/my-config.yml
+   services: /home/username/my-config.yml
 
    expand: true
 
@@ -318,7 +292,7 @@ just treat it as plain text.
 ::
 
    ---
-   system_skeleton:
+   services:
      - item_expand: true
        item_path: /home/username/my-config.yml
 
@@ -331,7 +305,7 @@ Absolute file path or URL to a *.yml* file.
 ::
 
    ---
-   system_skeleton:
+   services:
      - item_path: /home/username/my-config.yml
 
 This attribute also works with URLs.
@@ -386,15 +360,15 @@ MIT. See the LICENSE file for more details.
 Links
 *****
 
-* `Github <https://github.com/constrict0r/sysconfig>`_.
+* `Github <https://github.com/constrict0r/servicez>`_.
 
-* `Gitlab <https://gitlab.com/constrict0r/sysconfig>`_.
+* `Gitlab <https://gitlab.com/constrict0r/servicez>`_.
 
-* `Gitlab CI <https://gitlab.com/constrict0r/sysconfig/pipelines>`_.
+* `Gitlab CI <https://gitlab.com/constrict0r/servicez/pipelines>`_.
 
-* `Readthedocs <https://sysconfig.readthedocs.io>`_.
+* `Readthedocs <https://servicez.readthedocs.io>`_.
 
-* `Travis CI <https://travis-ci.com/constrict0r/sysconfig>`_.
+* `Travis CI <https://travis-ci.com/constrict0r/servicez>`_.
 
 
 
@@ -407,7 +381,7 @@ Deployment
 
 The full project structure is shown below:
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/sysconfig/deploy.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/deploy.png
    :alt: deploy
 
 
@@ -416,7 +390,7 @@ Main
 
 The project data flow is shown below:
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/sysconfig/main.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/main.png
    :alt: main
 
 
@@ -424,14 +398,14 @@ The project data flow is shown below:
 Author
 ******
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/sysconfig/author.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/author.png
    :alt: author
 
 The Travelling Vaudeville Villain.
 
 Enjoy!!!
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/sysconfig/enjoy.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/enjoy.png
    :alt: enjoy
 
 
