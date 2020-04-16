@@ -34,12 +34,7 @@
 
   roles:
     - role: servicez
-      services:
-        - mosquitto
-        - nginx
-      services_disable:
-        - ntp
-      configuration: https://is.gd/gDI4n5
+      configuration: https://is.gd/yBZCrb
 
 
   post_tasks:
